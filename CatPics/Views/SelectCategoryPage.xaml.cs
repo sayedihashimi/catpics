@@ -12,7 +12,7 @@ namespace CatPics.Views {
         public SelectCategoryPage() {
             InitializeComponent();
             BindingContext = ViewModel = new SelectCategoryPageViewModel(Navigation);
-
+            Title = "Select a category";
             BuildUi();
         }
 
