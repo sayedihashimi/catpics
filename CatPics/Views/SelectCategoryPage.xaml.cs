@@ -7,25 +7,16 @@ using CatPics.ViewModels;
 using Xamarin.Forms;
 
 namespace CatPics.Views {
-    public partial class CategoryPage
+    public partial class SelectCategoryPage
         : ContentPage {
-        public CategoryPage() {
+        public SelectCategoryPage() {
             InitializeComponent();
-            BindingContext = new CategoryPageViewModel();
+            BindingContext = ViewModel = new SelectCategoryPageViewModel(Navigation);
 
             BuildUi();
-
-            //try{
-            //    var foo = new WebApiHelper();
-            //    var result = foo.GetCategories();
-            //}
-            //catch(Exception ex){
-            //    System.Diagnostics.Debug.WriteLine(ex.ToString());
-            //}
-
-
         }
 
+        private SelectCategoryPageViewModel ViewModel { get; set; }
 
         protected async void BuildUi(){
             var apiHelper = new WebApiHelper();
@@ -49,20 +40,20 @@ namespace CatPics.Views {
             double imgwidth = 500.0;
             double imgheight = 200.0;
 
-            foreach(var cat in categories){
-                var imgresult = await apiHelper.GetCat(cat.Name);
+            foreach(var category in categories){
+                var imgresult = await apiHelper.GetCat(category.Name);
                 if(imgresult != null){
                     images.Add(imgresult);
 
                     var img = new Image {
-                        Source = (await apiHelper.GetCat(cat.Name)).Url,
+                        Source = (await apiHelper.GetCat(category.Name)).Url,
                         WidthRequest = imgwidth,
                         HeightRequest = imgheight,
                         Aspect=Aspect.AspectFill,
                         HorizontalOptions=LayoutOptions.CenterAndExpand
                     };
                     var label = new Label {
-                        Text = cat.Name,
+                        Text = category.Name,
                         FontAttributes=FontAttributes.Bold,
                         TextColor = Color.WhiteSmoke
                                          ,
@@ -104,13 +95,13 @@ namespace CatPics.Views {
                             }
 
                             if(catLabel != null){
-                                string category = catLabel.Text;
-
+                                string categoryValue = catLabel.Text;
+                                ViewModel.ShowCategory.Execute(categoryValue);
                             }
 
                         }
                         catch(Exception ex){
-                            
+                            // TODO: What to do here?
                         }
                     };
                     img.GestureRecognizers.Add(tapped);
@@ -119,7 +110,6 @@ namespace CatPics.Views {
                 }
             }
         }
-
 
         protected override void OnAppearing() {
             base.OnAppearing();

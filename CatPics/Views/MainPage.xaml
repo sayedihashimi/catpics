@@ -8,7 +8,7 @@
                 </OnPlatform>
             </NavigationPage.Icon>
             <x:Arguments>
-                <views:CategoryPage />
+                <views:SelectCategoryPage />
             </x:Arguments>
         </NavigationPage>
         <NavigationPage Title="About">
