@@ -97,6 +97,10 @@
       <Project>{57FBB1CA-DA77-4D02-AA22-DBCE2A1108E9}</Project>
       <Name>CatPics</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CatPics.Shared\CatPics.Shared.csproj">
+      <Project>{3EF6C09D-F2E7-4C03-BCB2-2830F8F8A950}</Project>
+      <Name>CatPics.Shared</Name>
+    </ProjectReference>
   </ItemGroup>
  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

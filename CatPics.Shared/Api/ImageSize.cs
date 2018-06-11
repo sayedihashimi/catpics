@@ -1,7 +1,9 @@
 ﻿using System;
 namespace CatPics.Shared.Api {
-    public class ImageSize {
-        public ImageSize() {
-        }
+    public enum ImageSize {
+        None,
+        Small,
+        Med,
+        Full
     }
 }
