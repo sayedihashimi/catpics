@@ -11,7 +11,7 @@
                 <views:SelectCategoryPage />
             </x:Arguments>
         </NavigationPage>
-        <NavigationPage Title="About">
+<!--        <NavigationPage Title="About">
             <NavigationPage.Icon>
                 <OnPlatform x:TypeArguments="FileImageSource">
                     <On Platform="iOS" Value="tab_about.png" />
@@ -20,6 +20,6 @@
             <x:Arguments>
                 <views:AboutPage />
             </x:Arguments>
-        </NavigationPage>
+        </NavigationPage>-->
     </TabbedPage.Children>
 </TabbedPage>

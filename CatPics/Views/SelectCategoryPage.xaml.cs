@@ -38,7 +38,7 @@ namespace CatPics.Views {
             // mainFlexLayout.HeightRequest = Content.Height;
 
             double imgwidth = 500.0;
-            double imgheight = 200.0;
+            double imgheight = 350.0;
 
             foreach(var category in categories){
                 var imgresult = await apiHelper.GetCat(category.Name);
@@ -102,6 +102,7 @@ namespace CatPics.Views {
                         }
                         catch(Exception ex){
                             // TODO: What to do here?
+                            System.Diagnostics.Debug.WriteLine(ex.Message);
                         }
                     };
                     img.GestureRecognizers.Add(tapped);
