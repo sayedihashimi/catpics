@@ -58,10 +58,13 @@ namespace CatPics.Views {
 
             if(img != null){
                 System.Diagnostics.Debug.WriteLine($"height= {height} width={width}");
-
-                var newsize = GetScreenSizeFor(OriginalSize.Width, OriginalSize.Height);
-                img.WidthRequest = newsize.width;
-                img.HeightRequest = newsize.height;
+                img.HeightRequest = height;
+                img.WidthRequest = width;
+                //if (OriginalSize.Width > 0 && OriginalSize.Height > 0) {
+                //    var newsize = GetScreenSizeFor(OriginalSize.Width, OriginalSize.Height);
+                //    img.WidthRequest = newsize.width;
+                //    img.HeightRequest = newsize.height;
+                //}
             }
         }
 
