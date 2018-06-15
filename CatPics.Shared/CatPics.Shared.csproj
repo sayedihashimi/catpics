@@ -7,4 +7,7 @@
   <ItemGroup>
     <Folder Include="Api\" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Api\CatImageFinder.cs" />
+  </ItemGroup>
 </Project>

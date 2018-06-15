@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CatPics.Shared;
@@ -8,10 +9,11 @@ using CatPics.ViewModels;
 using Xamarin.Forms;
 
 namespace CatPics.Views {
-    public partial class ViewCategoryPage : ContentPage {
+    public partial class ViewCategoryPage : ContentPage, ICatImageListView {
         public ViewCategoryPage(string category) {
             InitializeComponent();
             BindingContext = new ViewCategoryPageViewModel(category);
+            ApiHelper = new WebApiHelper();
             Category = category;
             Title = category;
             BuildUi();
@@ -19,13 +21,17 @@ namespace CatPics.Views {
 
         protected StackLayout MainLayout { get; set; }
         protected string Category { get; set; }
+        protected WebApiHelper ApiHelper { get; set; }
+
+        protected List<CatImage> CatImages { get; set; } = new List<CatImage>();
+        protected ObservableCollection<CatImage> NewCatImages { get; set; } = new ObservableCollection<CatImage>();
 
         public double ImageWidth { get; set; } = 500.0;
         public double ImageHeight { get; set; } = 400.0;
 
         public int RefreshDelayMs { get; set; } = 100;
         public int NumImagesToFetchInitially { get; set; } = 10;
-        public int NumImageToFetchAfterInitial { get; set; } = 10;
+        public int NumImagesToFetchAfterInitial { get; set; } = 10;
 
         public async void BuildUi() {
             MainLayout = new StackLayout {
@@ -39,44 +45,73 @@ namespace CatPics.Views {
                 HorizontalOptions = LayoutOptions.CenterAndExpand
             };
 
-            var apiHelper = new WebApiHelper();
-            var catImages = await apiHelper.GetCats(NumImagesToFetchInitially, Category, Shared.Api.ImageSize.Med);
+            await FetchAndAddImagesToView(NumImagesToFetchInitially);
 
-            foreach(var cImage in catImages){
-                MainLayout.Children.Add(GetImageFrom(cImage, ImageWidth,ImageHeight));
-            }
-
-            scrollView.Scrolled += (sender, e) => {
+            scrollView.Scrolled += async (sender, e) => {
                 ScrollView sv = sender as ScrollView;
                 if(sv != null){
                     double maxScrollY = sv.ContentSize.Height - sv.Height;
                     if(maxScrollY - sv.ScrollY < 500){
-                        // LoadMoreImages will handle ignoring repeat calls
-                        LoadMoreImages();
+                        // LoadMoreImagesAfterScroll will handle ignoring repeat calls
+                        await LoadMoreImagesAfterScroll();
                     }
                 }
             };
+
+            var scrollTapped = new TapGestureRecognizer();
+            scrollTapped.Tapped += (s, e) => {
+                var foo = new CatImageFullPageView(this);
+                Navigation.PushModalAsync(new NavigationPage(foo));
+            };
+
+            scrollView.GestureRecognizers.Add(scrollTapped);
+            //scrollView.GestureRecognizers += new TapGestureRecognizer((obj) => {
+
+            //});
+
         }
 
-        private bool IsLoadingMoreImages { get; set; } = false;
-        private async void LoadMoreImages(){
-            if(!IsLoadingMoreImages){
+        public List<CatImage> GetCatImages(){
+            return CatImages;
+        }
 
-                IsLoadingMoreImages = true;
-                System.Diagnostics.Debug.WriteLine("Loading more images now");
+        public virtual async Task FetchAndAddImagesToView(int numToFetch = 10, ImageSize size = ImageSize.Med){
+            var catImages = await ApiHelper.GetCats(numToFetch, Category, size);
+            AddCatImagesToView(catImages);
+        }
+
+        public virtual void AddCatImagesToView(IEnumerable<CatImage>images){
+            if(images != null && images.Count() > 0){
+                foreach(CatImage img in images){
+                    AddCatImageToView(img);
+                }
+            }
+        }
+
+        public virtual void AddCatImageToView(CatImage image){
+            if(image != null){
+                CatImages.Add(image);
+                MainLayout.Children.Add(GetImageFrom(image, ImageWidth, ImageHeight));
+            }
+        }
+
+        private bool IsLoadingMoreImagesAfterScroll { get; set; } = false;
+        private async Task LoadMoreImagesAfterScroll(){
+            if(!IsLoadingMoreImagesAfterScroll){
+
+                IsLoadingMoreImagesAfterScroll = true;
+
                 try{
-                    var apiHelper = new WebApiHelper();
-                    var catImages = await apiHelper.GetCats(NumImageToFetchAfterInitial, Category, Shared.Api.ImageSize.Med);
-                    foreach (var cImage in catImages) {
-                        MainLayout.Children.Add(GetImageFrom(cImage, ImageWidth, ImageHeight));
-                    }
+                    System.Diagnostics.Debug.WriteLine("Loading more images now");
+                    await FetchAndAddImagesToView(NumImagesToFetchAfterInitial);
+
+                    await Task.Delay(RefreshDelayMs);
                 }
                 finally{
-                    System.Diagnostics.Debug.WriteLine("1:***");
-                    await Task.Delay(RefreshDelayMs);
-                    IsLoadingMoreImages = false;
-                    System.Diagnostics.Debug.WriteLine("2:***");
+                    IsLoadingMoreImagesAfterScroll = false;
                 }
+
+
             }
             else{
                 System.Diagnostics.Debug.Write(".");
