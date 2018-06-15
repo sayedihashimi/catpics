@@ -61,14 +61,11 @@ namespace CatPics.Views {
             var scrollTapped = new TapGestureRecognizer();
             scrollTapped.Tapped += (s, e) => {
                 var foo = new CatImageFullPageView(this);
-                Navigation.PushModalAsync(new NavigationPage(foo));
+                // Navigation.PushModalAsync(new NavigationPage(foo));
+                Navigation.PushModalAsync(foo);
             };
 
             scrollView.GestureRecognizers.Add(scrollTapped);
-            //scrollView.GestureRecognizers += new TapGestureRecognizer((obj) => {
-
-            //});
-
         }
 
         public List<CatImage> GetCatImages(){

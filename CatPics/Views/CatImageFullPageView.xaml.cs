@@ -32,24 +32,37 @@ namespace CatPics.Views {
             img.Source = CatImages[currentIndex].Url;
             img.Aspect = Aspect.AspectFit;
 
-            img.SizeChanged += (sender, e) => {
-                if(OriginalSize.Height <= 0 && 
-                   OriginalSize.Width <= 0 &&
-                   img.Height > 0 &&
-                   img.Width >0){
-
-                    OriginalSize = (img.Width, img.Height);
-                }
-
-            };
-
             img.HeightRequest = 600;
             img.WidthRequest = 600;
 
-            var layout = new StackLayout();
-            layout.Children.Add(img);
 
-            Content = img;
+            var layout = new RelativeLayout();
+            layout.BackgroundColor = Color.Gray;
+            layout.Children.Add(img, 
+                                widthConstraint: Constraint.RelativeToParent((parent)=>{
+                                    return parent.Width;
+                                }),
+                                heightConstraint: Constraint.RelativeToParent( (parent)=>{
+                                    return parent.Height;
+                                }) );
+
+
+            var closeButton = new Button();
+            closeButton.Image = "close.png";
+            layout.Children.Add(closeButton,
+                                xConstraint: Constraint.RelativeToParent((parent) => {
+                                    return 20;
+                                }),
+                                yConstraint: Constraint.RelativeToParent((parent) => {
+                                    return 20;
+                                }));
+            closeButton.Clicked += (sender, e) => {
+                Navigation.PopModalAsync();
+            };
+
+                                //yConstraint: Constraint.RelativeToView()
+
+            Content = layout;
         }
 
         protected override void OnSizeAllocated(double width, double height) {
@@ -60,30 +73,13 @@ namespace CatPics.Views {
                 System.Diagnostics.Debug.WriteLine($"height= {height} width={width}");
                 img.HeightRequest = height;
                 img.WidthRequest = width;
-                //if (OriginalSize.Width > 0 && OriginalSize.Height > 0) {
-                //    var newsize = GetScreenSizeFor(OriginalSize.Width, OriginalSize.Height);
-                //    img.WidthRequest = newsize.width;
-                //    img.HeightRequest = newsize.height;
-                //}
-            }
-        }
-
-        private (double width, double height) GetScreenSizeFor(double width, double height){
-            (double width, double height) retvalue = (0, 0);
-
-            // see which is the long size
-            if(width > height){
-                retvalue.width = Math.Min(width, Width);
-                // calculate height based on originalsize and new width
-                retvalue.height = (int)Math.Floor(OriginalSize.Height / OriginalSize.Width * retvalue.width);
-            }
-            else{
-                retvalue.height = Math.Min(height, Height);
-                // calculate width based on originalsize and new width
-                retvalue.width = (int)Math.Floor(OriginalSize.Width/OriginalSize.Height * retvalue.height);
             }
 
-            return retvalue;
+            RelativeLayout layout = Content as RelativeLayout;
+            if(layout != null){
+                layout.WidthRequest = width;
+                layout.HeightRequest = height;
+            }
         }
     }
 }
