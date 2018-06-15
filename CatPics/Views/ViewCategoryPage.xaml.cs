@@ -58,18 +58,31 @@ namespace CatPics.Views {
                 }
             };
 
-            var scrollTapped = new TapGestureRecognizer();
-            scrollTapped.Tapped += (s, e) => {
-                var foo = new CatImageFullPageView(this);
-                // Navigation.PushModalAsync(new NavigationPage(foo));
-                Navigation.PushModalAsync(foo);
-            };
+            //var scrollTapped = new TapGestureRecognizer();
+            //scrollTapped.Tapped += (s, e) => {
+            //    var foo = new CatImageFullPageView(this);
+            //    // Navigation.PushModalAsync(new NavigationPage(foo));
+            //    Navigation.PushModalAsync(foo);
+            //};
 
-            scrollView.GestureRecognizers.Add(scrollTapped);
+            //scrollView.GestureRecognizers.Add(scrollTapped);
         }
 
         public List<CatImage> GetCatImages(){
             return CatImages;
+        }
+
+        public virtual int GetIndexOfImageWithUrl(string url){
+            int result = int.MinValue;
+
+            if(_catSourceIndexMap.ContainsKey(url)){
+                result = _catSourceIndexMap[url];
+            }
+            else{
+                System.Diagnostics.Debug.WriteLine("temp");
+            }
+
+            return result;
         }
 
         public virtual async Task FetchAndAddImagesToView(int numToFetch = 10, ImageSize size = ImageSize.Med){
@@ -88,10 +101,15 @@ namespace CatPics.Views {
         public virtual void AddCatImageToView(CatImage image){
             if(image != null){
                 CatImages.Add(image);
+
+                if(!_catSourceIndexMap.ContainsKey(image.Url)){
+                    _catSourceIndexMap.Add(image.Url, CatImages.IndexOf(image));
+                }
+
                 MainLayout.Children.Add(GetImageFrom(image, ImageWidth, ImageHeight));
             }
         }
-
+        private Dictionary<string, int> _catSourceIndexMap = new Dictionary<string, int>();
         private bool IsLoadingMoreImagesAfterScroll { get; set; } = false;
         private async Task LoadMoreImagesAfterScroll(){
             if(!IsLoadingMoreImagesAfterScroll){
@@ -129,6 +147,35 @@ namespace CatPics.Views {
                 img.HeightRequest = imageHeight;
             }
 
+
+            //var scrollTapped = new TapGestureRecognizer();
+            //scrollTapped.Tapped += (s, e) => {
+            //    var foo = new CatImageFullPageView(this);
+            //    // Navigation.PushModalAsync(new NavigationPage(foo));
+            //    Navigation.PushModalAsync(foo);
+            //};
+
+            //scrollView.GestureRecognizers.Add(scrollTapped);
+
+
+
+            var imgTapped = new TapGestureRecognizer();
+            imgTapped.Tapped += (sender, e) => {
+                Image sourceImg = sender as Image;
+                if(sourceImg == null){
+                    return;
+                }
+
+                UriImageSource tappedImage = sourceImg.Source as UriImageSource;
+
+                if(tappedImage != null){
+                    int index = this.GetIndexOfImageWithUrl(tappedImage.Uri.AbsoluteUri);
+                    var fullpageview = new CatImageFullPageView(this, index);
+                    Navigation.PushModalAsync(fullpageview);
+                }
+            };
+
+            img.GestureRecognizers.Add(imgTapped);
             return img;
         }
     }

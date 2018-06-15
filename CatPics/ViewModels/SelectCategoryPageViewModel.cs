@@ -14,7 +14,8 @@ namespace CatPics.ViewModels {
         private INavigation Navigation { get; set; }
         public ICommand ShowCategory { get; set; }
         private async void ExecuteShowCategory(string category){
-            await Navigation.PushAsync(new NavigationPage(new ViewCategoryPage(category)));
+            // await Navigation.PushAsync(new NavigationPage(new ViewCategoryPage(category)));
+            await Navigation.PushAsync(new ViewCategoryPage(category));
         }
     }
 }

@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CatPics.Shared.Api;
+using System.Linq;
 using Xamarin.Forms;
 
 namespace CatPics.Views {
+    // from: https://stackoverflow.com/a/45454234/105999
     public partial class CatImageFullPageView : ContentPage {
-        public CatImageFullPageView(ICatImageListView listView) {
+        public CatImageFullPageView(ICatImageListView listView, int indexOfImage) {
             InitializeComponent();
             ListView = listView;
 
+            currentIndex = indexOfImage;
             BuildUi();
         }
 
@@ -25,20 +28,29 @@ namespace CatPics.Views {
             await ListView.FetchAndAddImagesToView();
             CatImages = ListView.GetCatImages();
         }
-
+        private Image MainImage { get; set; }
         private async void BuildUi(){
             await InitCatImages();
-            Image img = new Image();
-            img.Source = CatImages[currentIndex].Url;
-            img.Aspect = Aspect.AspectFit;
 
-            img.HeightRequest = 600;
-            img.WidthRequest = 600;
+            MainImage = new Image();
+            MainImage.Source = CatImages[currentIndex].Url;
+            MainImage.Aspect = Aspect.AspectFit;
 
+            MainImage.HeightRequest = 600;
+            MainImage.WidthRequest = 600;
+
+            var swipeGesture = new SwipeGestureRecognizer(MainImage, new SwipeCallBack {
+                OnRightSwipeFunc = (View) => {
+                    MoveCurrentImageToPrevious();
+                },
+                OnLeftSwipeFunc = (view) => {
+                    MoveCurrentImageToNext();
+                }
+            });
 
             var layout = new RelativeLayout();
             layout.BackgroundColor = Color.Gray;
-            layout.Children.Add(img, 
+            layout.Children.Add(MainImage, 
                                 widthConstraint: Constraint.RelativeToParent((parent)=>{
                                     return parent.Width;
                                 }),
@@ -60,9 +72,37 @@ namespace CatPics.Views {
                 Navigation.PopModalAsync();
             };
 
-                                //yConstraint: Constraint.RelativeToView()
-
             Content = layout;
+        }
+        private void UpdateCurrentIndex(int newIndex){
+            currentIndex = newIndex;
+            System.Diagnostics.Debug.WriteLine($"Updating currentIndex to: {newIndex}");
+            this.MainImage.Source = CatImages.ElementAt(currentIndex).Url;
+        }
+        private void MoveCurrentImageToNext(){
+            int nextIndex = currentIndex + 1;
+
+            if(nextIndex >= CatImages.Count){
+                nextIndex = 0;
+            }
+            if(nextIndex < 0){
+                nextIndex = CatImages.Count -1;
+            }
+
+            UpdateCurrentIndex(nextIndex);
+        }
+
+        private void MoveCurrentImageToPrevious() {
+            int nextIndex = currentIndex - 1;
+
+            if (nextIndex >= CatImages.Count) {
+                nextIndex = 0;
+            }
+            if (nextIndex < 0) {
+                nextIndex = CatImages.Count - 1;
+            }
+
+            UpdateCurrentIndex(nextIndex);
         }
 
         protected override void OnSizeAllocated(double width, double height) {
