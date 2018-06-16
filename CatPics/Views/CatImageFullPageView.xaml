@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="CatPics.Views.CatImageFullPageView">
     <ContentPage.Content>
-        <RelativeLayout>
+<!--        <RelativeLayout>
             <Image Source="http://24.media.tumblr.com/tumblr_lnzxwts2xc1qdvbl3o1_1280.jpg"
                       RelativeLayout.WidthConstraint=
                         "{ConstraintExpression Type=RelativeToParent, Property=Width}"
                       RelativeLayout.HeightConstraint=
                         "{ConstraintExpression Type=RelativeToParent, Property=Height}"/>
-            <!--<Grid RelativeLayout.WidthConstraint=
-                    "{ConstraintExpression Type=RelativeToParent, Property=Width}"
-                  RelativeLayout.HeightConstraint=
-                    "{ConstraintExpression Type=RelativeToParent, Property=Height}">
-
-            <Label Text="Hello world from XAML"/>
-            </Grid>-->
-            </RelativeLayout>
+            </RelativeLayout>-->
     </ContentPage.Content>
 </ContentPage>

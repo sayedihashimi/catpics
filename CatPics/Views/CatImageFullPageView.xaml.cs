@@ -12,34 +12,34 @@ namespace CatPics.Views {
             InitializeComponent();
             ListView = listView;
 
-            currentIndex = indexOfImage;
+            _currentIndex = indexOfImage;
             BuildUi();
         }
 
         protected ICatImageListView ListView { get; set; }
 
-        private List<CatImage> CatImages { get; set; } = new List<CatImage>();
+        private List<CatImage> _catImages = new List<CatImage>();
 
-        private int currentIndex = 0;
-
-        private (double Height, double Width) OriginalSize { get; set; }
+        private int _currentIndex = 0;
+        private Image _mainImage { get; set; }
 
         private async Task InitCatImages(){
+            // this is not needed and can be removed, but it may be useful to keep
             await ListView.FetchAndAddImagesToView();
-            CatImages = ListView.GetCatImages();
+            _catImages = ListView.GetCatImages();
         }
-        private Image MainImage { get; set; }
+
         private async void BuildUi(){
             await InitCatImages();
 
-            MainImage = new Image();
-            MainImage.Source = CatImages[currentIndex].Url;
-            MainImage.Aspect = Aspect.AspectFit;
+            _mainImage = new Image();
+            _mainImage.Source = _catImages[_currentIndex].Url;
+            _mainImage.Aspect = Aspect.AspectFit;
 
-            MainImage.HeightRequest = 600;
-            MainImage.WidthRequest = 600;
+            _mainImage.HeightRequest = 600;
+            _mainImage.WidthRequest = 600;
 
-            var swipeGesture = new SwipeGestureRecognizer(MainImage, new SwipeCallBack {
+            var swipeGesture = new SwipeGestureRecognizer(_mainImage, new SwipeCallBack {
                 OnRightSwipeFunc = (View) => {
                     MoveCurrentImageToPrevious();
                 },
@@ -57,7 +57,7 @@ namespace CatPics.Views {
 
             var layout = new RelativeLayout();
             layout.BackgroundColor = Color.Gray;
-            layout.Children.Add(MainImage, 
+            layout.Children.Add(_mainImage, 
                                 widthConstraint: Constraint.RelativeToParent((parent)=>{
                                     return parent.Width;
                                 }),
@@ -82,36 +82,36 @@ namespace CatPics.Views {
             Content = layout;
         }
         private void UpdateCurrentIndex(int newIndex){
-            currentIndex = newIndex;
+            _currentIndex = newIndex;
             System.Diagnostics.Debug.WriteLine($"Updating currentIndex to: {newIndex}");
-            this.MainImage.Source = CatImages.ElementAt(currentIndex).Url;
+            this._mainImage.Source = _catImages.ElementAt(_currentIndex).Url;
 
-            if(Math.Abs(CatImages.Count - currentIndex) < 3){
+            if(Math.Abs(_catImages.Count - _currentIndex) < 3){
                 System.Diagnostics.Debug.WriteLine($"Fetching new cat images");
                 ListView.FetchAndAddImagesToView();
             }
         }
         private void MoveCurrentImageToNext(){
-            int nextIndex = currentIndex + 1;
+            int nextIndex = _currentIndex + 1;
 
-            if(nextIndex >= CatImages.Count){
+            if(nextIndex >= _catImages.Count){
                 nextIndex = 0;
             }
             if(nextIndex < 0){
-                nextIndex = CatImages.Count -1;
+                nextIndex = _catImages.Count -1;
             }
 
             UpdateCurrentIndex(nextIndex);
         }
 
         private void MoveCurrentImageToPrevious() {
-            int nextIndex = currentIndex - 1;
+            int nextIndex = _currentIndex - 1;
 
-            if (nextIndex >= CatImages.Count) {
+            if (nextIndex >= _catImages.Count) {
                 nextIndex = 0;
             }
             if (nextIndex < 0) {
-                nextIndex = CatImages.Count - 1;
+                nextIndex = _catImages.Count - 1;
             }
 
             UpdateCurrentIndex(nextIndex);

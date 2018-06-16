@@ -24,14 +24,14 @@ namespace CatPics.Views {
         protected WebApiHelper ApiHelper { get; set; }
 
         protected List<CatImage> CatImages { get; set; } = new List<CatImage>();
-        protected ObservableCollection<CatImage> NewCatImages { get; set; } = new ObservableCollection<CatImage>();
 
-        public double ImageWidth { get; set; } = 500.0;
-        public double ImageHeight { get; set; } = 400.0;
+        protected (double Width, double Height) CatImageSize { get; set; } = (500.0, 400.0);
 
         public int RefreshDelayMs { get; set; } = 100;
-        public int NumImagesToFetchInitially { get; set; } = 10;
-        public int NumImagesToFetchAfterInitial { get; set; } = 10;
+        public (int Initial, int AfterInitial) NumImagesToFetch { get; set; } = (10, 10);
+
+        private Dictionary<string, int> _catSourceIndexMap = new Dictionary<string, int>();
+        private bool _isLoadingMoreImagesAfterScroll = false;
 
         public async void BuildUi() {
             MainLayout = new StackLayout {
@@ -45,7 +45,7 @@ namespace CatPics.Views {
                 HorizontalOptions = LayoutOptions.CenterAndExpand
             };
 
-            await FetchAndAddImagesToView(NumImagesToFetchInitially);
+            await FetchAndAddImagesToView(NumImagesToFetch.Initial);
 
             scrollView.Scrolled += async (sender, e) => {
                 ScrollView sv = sender as ScrollView;
@@ -57,15 +57,6 @@ namespace CatPics.Views {
                     }
                 }
             };
-
-            //var scrollTapped = new TapGestureRecognizer();
-            //scrollTapped.Tapped += (s, e) => {
-            //    var foo = new CatImageFullPageView(this);
-            //    // Navigation.PushModalAsync(new NavigationPage(foo));
-            //    Navigation.PushModalAsync(foo);
-            //};
-
-            //scrollView.GestureRecognizers.Add(scrollTapped);
         }
 
         public List<CatImage> GetCatImages(){
@@ -104,28 +95,27 @@ namespace CatPics.Views {
 
                 if(!_catSourceIndexMap.ContainsKey(image.Url)){
                     _catSourceIndexMap.Add(image.Url, CatImages.IndexOf(image));
-                    MainLayout.Children.Add(GetImageFrom(image, ImageWidth, ImageHeight));
+                    MainLayout.Children.Add(GetImageFrom(image, CatImageSize.Width, CatImageSize.Height));
                 }
                 else{
                     System.Diagnostics.Debug.WriteLine($"Skipping image because it's already been added, image url=[{image.Url}");
                 }
             }
         }
-        private Dictionary<string, int> _catSourceIndexMap = new Dictionary<string, int>();
-        private bool IsLoadingMoreImagesAfterScroll { get; set; } = false;
-        private async Task LoadMoreImagesAfterScroll(){
-            if(!IsLoadingMoreImagesAfterScroll){
 
-                IsLoadingMoreImagesAfterScroll = true;
+        private async Task LoadMoreImagesAfterScroll(){
+            if(!_isLoadingMoreImagesAfterScroll){
+
+                _isLoadingMoreImagesAfterScroll = true;
 
                 try{
                     System.Diagnostics.Debug.WriteLine("Loading more images now");
-                    await FetchAndAddImagesToView(NumImagesToFetchAfterInitial);
+                    await FetchAndAddImagesToView(NumImagesToFetch.AfterInitial);
 
                     await Task.Delay(RefreshDelayMs);
                 }
                 finally{
-                    IsLoadingMoreImagesAfterScroll = false;
+                    _isLoadingMoreImagesAfterScroll = false;
                 }
 
 
