@@ -104,9 +104,11 @@ namespace CatPics.Views {
 
                 if(!_catSourceIndexMap.ContainsKey(image.Url)){
                     _catSourceIndexMap.Add(image.Url, CatImages.IndexOf(image));
+                    MainLayout.Children.Add(GetImageFrom(image, ImageWidth, ImageHeight));
                 }
-
-                MainLayout.Children.Add(GetImageFrom(image, ImageWidth, ImageHeight));
+                else{
+                    System.Diagnostics.Debug.WriteLine($"Skipping image because it's already been added, image url=[{image.Url}");
+                }
             }
         }
         private Dictionary<string, int> _catSourceIndexMap = new Dictionary<string, int>();
@@ -146,18 +148,6 @@ namespace CatPics.Views {
             if(imageHeight > 0){
                 img.HeightRequest = imageHeight;
             }
-
-
-            //var scrollTapped = new TapGestureRecognizer();
-            //scrollTapped.Tapped += (s, e) => {
-            //    var foo = new CatImageFullPageView(this);
-            //    // Navigation.PushModalAsync(new NavigationPage(foo));
-            //    Navigation.PushModalAsync(foo);
-            //};
-
-            //scrollView.GestureRecognizers.Add(scrollTapped);
-
-
 
             var imgTapped = new TapGestureRecognizer();
             imgTapped.Tapped += (sender, e) => {
