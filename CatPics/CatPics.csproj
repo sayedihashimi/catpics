@@ -9,6 +9,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Views\CategoryPage.cs" />
+    <Compile Remove="Services\IDataStore.cs" />
+    <Compile Remove="Services\MockDataStore.cs" />
+    <Compile Remove="Models\Item.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CatPics.Shared\CatPics.Shared.csproj" />

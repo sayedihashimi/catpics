@@ -3,7 +3,7 @@ using Xamarin.Forms;
 
 namespace CatPics {
 
-    // from: https://stackoverflow.com/a/45454234/105999
+    // adapted from: https://stackoverflow.com/a/45454234/105999
     public class SwipeGestureRecognizer : PanGestureRecognizer {
         private ISwipeCallBack mISwipeCallback;
         private double translatedX = 0, translatedY = 0;

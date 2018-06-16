@@ -5,15 +5,10 @@ using System.Runtime.CompilerServices;
 
 using Xamarin.Forms;
 
-using CatPics.Models;
-using CatPics.Services;
-
 namespace CatPics.ViewModels
 {
     public class BaseViewModel : INotifyPropertyChanged
     {
-        public IDataStore<Item> DataStore => DependencyService.Get<IDataStore<Item>>() ?? new MockDataStore();
-
         bool isBusy = false;
         public bool IsBusy
         {
