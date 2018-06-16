@@ -32,9 +32,8 @@ namespace CatPics {
                     break;
 
                 case GestureStatus.Completed:
-
-                    System.Diagnostics.Debug.WriteLine("translatedX : " + translatedX);
-                    System.Diagnostics.Debug.WriteLine("translatedY : " + translatedY);
+                    //System.Diagnostics.Debug.WriteLine("translatedX : " + translatedX);
+                    //System.Diagnostics.Debug.WriteLine("translatedY : " + translatedY);
 
                     if (translatedX < 0 && Math.Abs(translatedX) > Math.Abs(translatedY)) {
                         mISwipeCallback.onLeftSwipe(Content);

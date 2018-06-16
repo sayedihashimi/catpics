@@ -43,7 +43,14 @@ namespace CatPics.Views {
                 OnRightSwipeFunc = (View) => {
                     MoveCurrentImageToPrevious();
                 },
+                OnTopSwipeFunc = (view) => {
+                    MoveCurrentImageToPrevious();
+                },
+
                 OnLeftSwipeFunc = (view) => {
+                    MoveCurrentImageToNext();
+                },
+                OnBottomSwipeFunc = (view) => {
                     MoveCurrentImageToNext();
                 }
             });
@@ -78,6 +85,11 @@ namespace CatPics.Views {
             currentIndex = newIndex;
             System.Diagnostics.Debug.WriteLine($"Updating currentIndex to: {newIndex}");
             this.MainImage.Source = CatImages.ElementAt(currentIndex).Url;
+
+            if(Math.Abs(CatImages.Count - currentIndex) < 3){
+                System.Diagnostics.Debug.WriteLine($"Fetching new cat images");
+                ListView.FetchAndAddImagesToView();
+            }
         }
         private void MoveCurrentImageToNext(){
             int nextIndex = currentIndex + 1;
