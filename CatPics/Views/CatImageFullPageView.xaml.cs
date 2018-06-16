@@ -8,11 +8,11 @@ using Xamarin.Forms;
 namespace CatPics.Views {
     // from: https://stackoverflow.com/a/45454234/105999
     public partial class CatImageFullPageView : ContentPage {
-        public CatImageFullPageView(ICatImageListView listView, int indexOfImage) {
+        public CatImageFullPageView(ICatImageListView listView, int indexOfImage, string imageUrl) {
             InitializeComponent();
             ListView = listView;
 
-            _currentIndex = indexOfImage;
+            _currentImageUrl = imageUrl;
             BuildUi();
         }
 
@@ -20,7 +20,7 @@ namespace CatPics.Views {
 
         private List<CatImage> _catImages = new List<CatImage>();
 
-        private int _currentIndex = 0;
+        private string _currentImageUrl;
         private Image _mainImage { get; set; }
 
         private async Task InitCatImages(){
@@ -33,7 +33,7 @@ namespace CatPics.Views {
             await InitCatImages();
 
             _mainImage = new Image();
-            _mainImage.Source = _catImages[_currentIndex].Url;
+            _mainImage.Source = _currentImageUrl;
             _mainImage.Aspect = Aspect.AspectFit;
 
             _mainImage.HeightRequest = 600;
@@ -81,40 +81,20 @@ namespace CatPics.Views {
 
             Content = layout;
         }
-        private void UpdateCurrentIndex(int newIndex){
-            _currentIndex = newIndex;
-            System.Diagnostics.Debug.WriteLine($"Updating currentIndex to: {newIndex}");
-            this._mainImage.Source = _catImages.ElementAt(_currentIndex).Url;
 
-            if(Math.Abs(_catImages.Count - _currentIndex) < 3){
-                System.Diagnostics.Debug.WriteLine($"Fetching new cat images");
-                ListView.FetchAndAddImagesToView();
-            }
+        private void UpdateCurrentImage(string imageUrl){
+            _currentImageUrl = imageUrl;
+            this._mainImage.Source = imageUrl;
         }
-        private void MoveCurrentImageToNext(){
-            int nextIndex = _currentIndex + 1;
 
-            if(nextIndex >= _catImages.Count){
-                nextIndex = 0;
-            }
-            if(nextIndex < 0){
-                nextIndex = _catImages.Count -1;
-            }
-
-            UpdateCurrentIndex(nextIndex);
+        private async Task MoveCurrentImageToNext(){
+            UpdateCurrentImage(
+                await ListView.GetNextImageUrl(_currentImageUrl));
         }
 
         private void MoveCurrentImageToPrevious() {
-            int nextIndex = _currentIndex - 1;
-
-            if (nextIndex >= _catImages.Count) {
-                nextIndex = 0;
-            }
-            if (nextIndex < 0) {
-                nextIndex = _catImages.Count - 1;
-            }
-
-            UpdateCurrentIndex(nextIndex);
+            UpdateCurrentImage(
+                ListView.GetPreviousImageUrl(_currentImageUrl));
         }
 
         protected override void OnSizeAllocated(double width, double height) {

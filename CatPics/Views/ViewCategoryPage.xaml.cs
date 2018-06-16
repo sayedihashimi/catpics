@@ -24,7 +24,6 @@ namespace CatPics.Views {
         protected WebApiHelper ApiHelper { get; set; }
 
         protected List<CatImage> CatImages { get; set; } = new List<CatImage>();
-
         protected (double Width, double Height) CatImageSize { get; set; } = (500.0, 400.0);
 
         public int RefreshDelayMs { get; set; } = 100;
@@ -63,11 +62,70 @@ namespace CatPics.Views {
             return CatImages;
         }
 
+        public virtual string GetPreviousImageUrl(string url, bool addMoreImagesIfNearEnd = true){
+            if(CatImages == null || CatImages.Count() <=0 || string.IsNullOrWhiteSpace(url)){
+                return null;
+            }
+
+            int currentIndex = -1;
+            if(_catSourceIndexMap.ContainsKey(url.ToLowerInvariant())){
+                currentIndex = _catSourceIndexMap[url.ToLowerInvariant()];
+            }
+
+            if(currentIndex < 0){
+                return null;
+            }
+
+            int nextIndex = currentIndex - 1;
+
+            if (nextIndex >= CatImages.Count) {
+                nextIndex = 0;
+            }
+            if (nextIndex < 0) {
+                nextIndex = CatImages.Count - 1;
+            }
+
+            return CatImages.ElementAt(nextIndex).Url;
+        }
+
+        public virtual async Task<string> GetNextImageUrl(string url, bool addMoreImagesIfNearEnd = true) {
+            if (CatImages == null || CatImages.Count() <= 0 || string.IsNullOrWhiteSpace(url)) {
+                return null;
+            }
+
+            int currentIndex = -1;
+            if (_catSourceIndexMap.ContainsKey(url.ToLowerInvariant())) {
+                currentIndex = _catSourceIndexMap[url.ToLowerInvariant()];
+            }
+
+            if (currentIndex < 0) {
+                return null;
+            }
+
+            int nextIndex = currentIndex + 1;
+
+            if (nextIndex >= CatImages.Count) {
+                nextIndex = 0;
+            }
+            if (nextIndex < 0) {
+                nextIndex = CatImages.Count - 1;
+            }
+
+            if(addMoreImagesIfNearEnd){
+                if (Math.Abs(CatImages.Count - nextIndex) < 3) {
+                    System.Diagnostics.Debug.WriteLine($"Fetching new cat images");
+                    await FetchAndAddImagesToView();
+                }
+            }
+
+            return CatImages.ElementAt(nextIndex).Url;
+        }
+
         public virtual int GetIndexOfImageWithUrl(string url){
             int result = int.MinValue;
 
-            if(_catSourceIndexMap.ContainsKey(url)){
-                result = _catSourceIndexMap[url];
+            if(_catSourceIndexMap.ContainsKey(url.ToLowerInvariant())){
+                result = _catSourceIndexMap[url.ToLowerInvariant()];
             }
             else{
                 System.Diagnostics.Debug.WriteLine("temp");
@@ -91,10 +149,9 @@ namespace CatPics.Views {
 
         public virtual void AddCatImageToView(CatImage image){
             if(image != null){
-                CatImages.Add(image);
-
-                if(!_catSourceIndexMap.ContainsKey(image.Url)){
-                    _catSourceIndexMap.Add(image.Url, CatImages.IndexOf(image));
+                if(!_catSourceIndexMap.ContainsKey(image.Url.ToLowerInvariant())){
+                    CatImages.Add(image);
+                    _catSourceIndexMap.Add(image.Url.ToLowerInvariant(), CatImages.IndexOf(image));
                     MainLayout.Children.Add(GetImageFrom(image, CatImageSize.Width, CatImageSize.Height));
                 }
                 else{
@@ -150,7 +207,7 @@ namespace CatPics.Views {
 
                 if(tappedImage != null){
                     int index = this.GetIndexOfImageWithUrl(tappedImage.Uri.AbsoluteUri);
-                    var fullpageview = new CatImageFullPageView(this, index);
+                    var fullpageview = new CatImageFullPageView(this, index, tappedImage.Uri.AbsoluteUri);
                     Navigation.PushModalAsync(fullpageview);
                 }
             };

@@ -7,7 +7,7 @@ namespace CatPics.Views {
         Task FetchAndAddImagesToView(int numToFetch = 10, ImageSize size = ImageSize.Med);
         List<CatImage> GetCatImages();
 
-        // TODO: Replace with GetPrevious/GetNext - with WrapAround bool parameter
-        int GetIndexOfImageWithUrl(string url);
+        Task<string> GetNextImageUrl(string url, bool addMoreImagesIfNearEnd = true);
+        string GetPreviousImageUrl(string url, bool addMoreImagesIfNearEnd = true);
     }
 }
